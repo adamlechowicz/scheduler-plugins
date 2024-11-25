@@ -4,7 +4,7 @@
 
 scheduler:
   name: scheduler-plugins-scheduler
-  image: registry.k8s.io/scheduler-plugins/kube-scheduler:v0.30.6
+  image: localhost:5000/scheduler-plugins/kube-scheduler:v0.30.6
   command:
   - /bin/kube-scheduler
   replicaCount: 1
@@ -17,7 +17,7 @@ scheduler:
 
 controller:
   name: scheduler-plugins-controller
-  image: registry.k8s.io/scheduler-plugins/controller:v0.30.6
+  image: localhost:5000/scheduler-plugins/controller:v20241121-v0.30.6-16-g5b7116ba
   replicaCount: 1
   leaderElect: false
   priorityClassName: ""

@@ -698,6 +698,7 @@ profiles:
 				"default-scheduler": {
 					PreEnqueue: defaults.ExpandedPluginsV1.PreEnqueue,
 					QueueSort:  config.PluginSet{Enabled: []config.Plugin{{Name: topologicalsort.Name}}},
+					PreFilter:  config.PluginSet{Enabled: []config.Plugin{{Name: topologicalsort.Name}}},
 					Bind:       defaults.ExpandedPluginsV1.Bind,
 					PostFilter: defaults.ExpandedPluginsV1.PostFilter,
 					Reserve:    defaults.ExpandedPluginsV1.Reserve,
