@@ -31,6 +31,7 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
+	"k8s.io/kubernetes/pkg/scheduler/framework/plugins/queuesort"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -204,7 +205,9 @@ func (ts *TopologicalSort) Less(pInfo1, pInfo2 *framework.QueuedPodInfo) bool {
     order2, ok2 := podOrderMap[pInfo2.Pod.Name]
 
     if !ok1 || !ok2 {
-        return false
+		// If the pod is not in the podOrderMap, follow the strategy of the in-tree QueueSort Plugin (PrioritySort Plugin)
+		s := &queuesort.PrioritySort{}
+        return s.Less(pInfo1, pInfo2)
     }
 
     return order1 < order2
