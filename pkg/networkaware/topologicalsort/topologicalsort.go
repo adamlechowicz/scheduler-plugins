@@ -59,6 +59,8 @@ type TopologicalSort struct {
 	client.Client
 	handle     framework.Handle
 	namespaces []string
+	previousPodOrder []string
+	previousPodCount int
 }
 
 var _ framework.QueueSortPlugin = &TopologicalSort{}
@@ -188,11 +190,32 @@ func (ts *TopologicalSort) Less(pInfo1, pInfo2 *framework.QueuedPodInfo) bool {
         return false
     }
 
+	if len(podInfoList) == ts.previousPodCount {
+		podOrderMap := make(map[string]int)
+		for i, podName := range ts.previousPodOrder {
+			podOrderMap[podName] = i
+		}
+		order1, ok1 := podOrderMap[pInfo1.Pod.Name]
+		order2, ok2 := podOrderMap[pInfo2.Pod.Name]
+
+		if !ok1 || !ok2 {
+			// If the pod is not in the podOrderMap, follow the strategy of the in-tree QueueSort Plugin (PrioritySort Plugin)
+			s := &queuesort.PrioritySort{}
+			return s.Less(pInfo1, pInfo2)
+		}
+
+		return order1 < order2
+	}
+
     podOrder, err := getPodOrderFromAPI(podInfoList)
     if err != nil {
         klog.ErrorS(err, "Failed to get pod order from API")
         return false
     }
+
+	// Update the cached podOrder and podInfoList length
+    ts.previousPodOrder = podOrder
+    ts.previousPodCount = len(podInfoList)
 	// log the pod order
 	// klog.InfoS("Pod order", "order", podOrder)
 
